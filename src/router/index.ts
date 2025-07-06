@@ -1,0 +1,41 @@
+import { createRouter, createWebHistory } from 'vue-router'
+import Home from '../views/Home.vue'
+
+const routes = [
+  {
+    path: '/',
+    name: 'Home',
+    component: Home
+  },
+  {
+    path: '/login',
+    name: 'Login',
+    component: () => import('../views/auth/Login.vue')
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: () => import('../views/user/Profile.vue')
+  },
+  {
+    path: '/game',
+    name: 'Game',
+    component: () => import('../views/game/GameMain.vue')
+  },
+  {
+    path: '/not-found',
+    name: 'NotFound',
+    component: () => import('../views/NotFound.vue')
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/not-found'
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
+
+export default router
