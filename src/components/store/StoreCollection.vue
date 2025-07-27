@@ -32,7 +32,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import StoreListItem from './StoreListItem.vue'
 
 interface StoreItem {
   id: string

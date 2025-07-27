@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import UserInfo from '@/components/game/Userinfo.vue'
+import Userinfo from '@/components/game/Userinfo.vue'
 import StoreSearch from '@/components/store/StoreSearch.vue'
 import StoreCollection from '@/components/store/StoreCollection.vue'
 
