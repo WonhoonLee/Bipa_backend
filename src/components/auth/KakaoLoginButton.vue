@@ -57,7 +57,7 @@ function loginWithKakao() {
           setNickname(nickname)
 
           alert(`환영합니다, ${nickname}님!`)
-          router.push('/')
+          router.push('/game')
         },
         fail(error: unknown) {
           console.error('❌ 사용자 정보 요청 실패:', error)
