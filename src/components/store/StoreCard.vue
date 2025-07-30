@@ -12,8 +12,10 @@
 <script setup lang="ts">
 defineProps<{
   store: {
-    id: string
+    id: string | number
     name: string
+    category?: string
+    description?: string
     image?: string
   }
 }>()

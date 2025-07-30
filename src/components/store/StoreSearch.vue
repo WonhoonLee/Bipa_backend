@@ -4,7 +4,7 @@
     <input v-model="keyword" placeholder="가게 이름을 검색하세요" />
 
     <div class="store-list">
-      <StoreListItem
+      <StoreCard
         v-for="store in filteredStores"
         :key="store.id"
         :store="store"
