@@ -2,7 +2,7 @@
   <div class="store-card">
     <img
       class="thumbnail"
-      :src="store.image || fallback"
+      :src="store.visited ? store.visitedImage : store.image"
       alt="store image"
     />
     <p class="name">{{ store.name }}</p>
@@ -17,6 +17,8 @@ defineProps<{
     category?: string
     description?: string
     image?: string
+    visitedImage?: string
+    visited?: boolean
   }
 }>()
 

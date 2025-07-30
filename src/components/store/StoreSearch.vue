@@ -17,15 +17,15 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import StoreCard from './StoreCard.vue'
-import coffeeImg from '@/assets/images/커피.png'
-
+import coffeeGray from '@/assets/images/gray_coffee.png'
+import coffeeColor from '@/assets/images/color_coffee.png'
 const keyword = ref('')
 
 // 🔁 임시 mock 데이터 (나중에 API 대체 예정)
 const storeList = ref([
-  { id: '1', name: '카페 비파', image: coffeeImg, category: '카페' },
-  { id: '2', name: '삼겹살집', image: 'https://via.placeholder.com/150', category: '음식점' },
-  { id: '3', name: '김밥천국', image: 'https://via.placeholder.com/150', category: '음식점' },
+  { id: '1', name: '카페 비파', image: coffeeGray, visitedImage: coffeeColor, category: '카페', visited: true },
+  { id: '2', name: '삼겹살집', image: coffeeGray, visitedImage: coffeeColor, category: '음식점', visited: false },
+  { id: '3', name: '김밥천국', image: coffeeGray, visitedImage: coffeeColor, category: '음식점', visited: false },
 ])
 
 const filteredStores = computed(() =>
