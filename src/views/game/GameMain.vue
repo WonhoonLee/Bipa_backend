@@ -14,6 +14,7 @@ import UserDataPanel from '@/components/common/UserDataPanel.vue'
 .game-main {
   display: flex;
   height: 100vh;
+  overflow: hidden;
 }
 .left {
   flex: 2;
@@ -24,5 +25,6 @@ import UserDataPanel from '@/components/common/UserDataPanel.vue'
   background-color: #f5f5f5;
   padding: 1rem;
   overflow-y: auto;
+  height: 100vh;
 }
 </style>
