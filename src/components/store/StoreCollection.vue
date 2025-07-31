@@ -46,23 +46,27 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import StoreCard from './StoreCard.vue'   // ✅ StoreCard 재사용
+import gray_food from '@/assets/images/gray_food.png'
+import gray_coffee from '@/assets/images/gray_coffee.png'
+import color_food from '@/assets/images/color_food.png'
+import color_coffee from '@/assets/images/color_coffee.png'
 
 const stores = ref([
-  { id: 1, name: '별다방 카페', category: 'cafe', description: '달달한 디저트와 커피가 맛있는 카페' },
-  { id: 2, name: '김밥천국', category: 'restaurant', description: '저렴하고 다양한 한식 메뉴' },
-  { id: 3, name: '카페 모카', category: 'cafe', description: '분위기 좋은 스페셜티 카페' },
-  { id: 4, name: '왕돈까스', category: 'restaurant', description: '수제 돈까스 전문점' },
-  { id: 5, name: '비파 브런치', category: 'cafe', description: '건강한 브런치를 즐길 수 있는 카페' },
-  { id: 6, name: '부대찌개 맛집', category: 'restaurant', description: '얼큰하고 푸짐한 부대찌개' },
-  { id: 7, name: '해피 커피', category: 'cafe', description: '커피 향이 좋은 아늑한 카페' },
-  { id: 8, name: '홍콩반점', category: 'restaurant', description: '짜장면, 짬뽕이 맛있는 중식당' },
-  { id: 9, name: '테라스 카페', category: 'cafe', description: '야외 테라스가 있는 감성 카페' },
-  { id: 10, name: '순대국밥집', category: 'restaurant', description: '진한 국물의 순대국밥 맛집' },
-  { id: 11, name: '라떼하우스', category: 'cafe', description: '라떼 전문 카페' },
-  { id: 12, name: '초밥 천국', category: 'restaurant', description: '신선한 초밥을 즐길 수 있는 식당' },
-  { id: 13, name: '달콤 카페', category: 'cafe', description: '달콤한 디저트와 음료 제공' },
-  { id: 14, name: '돼지국밥집', category: 'restaurant', description: '부산식 돼지국밥 전문점' },
-  { id: 15, name: '루프탑 카페', category: 'cafe', description: '야경이 예쁜 루프탑 카페' },
+  { id: 1, name: '별다방 카페', category: 'cafe', description: '달달한 디저트와 커피가 맛있는 카페', image: gray_coffee, visitedImage: color_coffee, visited: false },
+  { id: 2, name: '김밥천국', category: 'restaurant', description: '저렴하고 다양한 한식 메뉴', image: gray_food, visitedImage: color_food, visited: false },
+  { id: 3, name: '카페 모카', category: 'cafe', description: '분위기 좋은 스페셜티 카페', image: gray_coffee, visitedImage: color_coffee, visited: false },
+  { id: 4, name: '왕돈까스', category: 'restaurant', description: '수제 돈까스 전문점', image: gray_food, visitedImage: color_food, visited: false },
+  { id: 5, name: '비파 브런치', category: 'cafe', description: '건강한 브런치를 즐길 수 있는 카페', image: gray_coffee, visitedImage: color_coffee, visited: false },
+  { id: 6, name: '부대찌개 맛집', category: 'restaurant', description: '얼큰하고 푸짐한 부대찌개', image: gray_food, visitedImage: color_food, visited: false },
+  { id: 7, name: '해피 커피', category: 'cafe', description: '커피 향이 좋은 아늑한 카페', image: gray_coffee, visitedImage: color_coffee, visited: false },
+  { id: 8, name: '홍콩반점', category: 'restaurant', description: '짜장면, 짬뽕이 맛있는 중식당', image: gray_food, visitedImage: color_food, visited: false },
+  { id: 9, name: '테라스 카페', category: 'cafe', description: '야외 테라스가 있는 감성 카페', image: gray_coffee, visitedImage: color_coffee, visited: false },
+  { id: 10, name: '순대국밥집', category: 'restaurant', description: '진한 국물의 순대국밥 맛집', image: gray_food, visitedImage: color_food, visited: false },
+  { id: 11, name: '라떼하우스', category: 'cafe', description: '라떼 전문 카페', image: gray_coffee, visitedImage: color_coffee, visited: false },
+  { id: 12, name: '초밥 천국', category: 'restaurant', description: '신선한 초밥을 즐길 수 있는 식당', image: gray_food, visitedImage: color_food, visited: false },
+  { id: 13, name: '달콤 카페', category: 'cafe', description: '달콤한 디저트와 음료 제공', image: gray_coffee, visitedImage: color_coffee, visited: false },
+  { id: 14, name: '돼지국밥집', category: 'restaurant', description: '부산식 돼지국밥 전문점', image: gray_food, visitedImage: color_food, visited: false },
+  { id: 15, name: '루프탑 카페', category: 'cafe', description: '야경이 예쁜 루프탑 카페', image: gray_coffee, visitedImage: color_coffee, visited: false },
 ])
 
 const selectedFilter = ref<'all' | 'cafe' | 'restaurant'>('all')
