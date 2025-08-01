@@ -1,3 +1,4 @@
+// src/store/User.ts
 import { reactive } from 'vue'
 
 const user = reactive({
@@ -12,7 +13,7 @@ const user = reactive({
   }
 })
 
-// 로컬에서 불러오기 (임시용)
+// ✅ 닉네임 로드
 function loadNickname() {
   const saved = localStorage.getItem('nickname')
   if (saved) {
@@ -20,15 +21,27 @@ function loadNickname() {
   }
 }
 
+// ✅ 닉네임 저장
 function setNickname(name: string) {
   user.nickname = name
   localStorage.setItem('nickname', name)
+}
+
+// ✅ 로그아웃 → 모든 데이터 초기화
+function logout() {
+  user.id = ''
+  user.nickname = ''
+  user.level = 1
+  user.hunger = 50
+  user.miniGames = { 배달: 0, 낚시: 0, 뽑기: 0 }
+  localStorage.clear()  // ✅ 저장된 닉네임/데이터 전부 초기화
 }
 
 export function useUser() {
   return {
     user,
     setNickname,
-    loadNickname // ⬅ 이거 꼭 리턴해야 main.ts에서 쓸 수 있음!
+    loadNickname,
+    logout   // ✅ 로그아웃 추가
   }
 }

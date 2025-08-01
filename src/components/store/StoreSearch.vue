@@ -20,13 +20,14 @@ import StoreCard from './StoreCard.vue'
 import coffeeGray from '@/assets/images/gray_coffee.png'
 import coffeeColor from '@/assets/images/color_coffee.png'
 import gray_food from '@/assets/images/gray_food.png'
+import color_food from '@/assets/images/color_food.png'
 const keyword = ref('')
 
 // 🔁 임시 mock 데이터 (나중에 API 대체 예정)
 const storeList = ref([
   { id: '1', name: '카페 비파', image: coffeeGray, visitedImage: coffeeColor, category: '카페', visited: true },
-  { id: '2', name: '삼겹살집', image: gray_food, visitedImage: coffeeColor, category: '음식점', visited: false },
-  { id: '3', name: '김밥천국', image: gray_food, visitedImage: coffeeColor, category: '음식점', visited: false },
+  { id: '2', name: '삼겹살집', image: gray_food, visitedImage: color_food, category: '음식점', visited: true },
+  { id: '3', name: '김밥천국', image: gray_food, visitedImage: color_food, category: '음식점', visited: false },
 ])
 
 const filteredStores = computed(() =>

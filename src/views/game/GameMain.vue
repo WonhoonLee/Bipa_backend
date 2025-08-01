@@ -22,7 +22,7 @@ import UserDataPanel from '@/components/common/UserDataPanel.vue'
 }
 .right {
   flex: 1;
-  background-color: #f5f5f5;
+  background-color: #fff9db;
   padding: 1rem;
   overflow-y: auto;
   height: 100vh;
