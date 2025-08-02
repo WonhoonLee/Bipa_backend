@@ -22,7 +22,7 @@ defineProps<{
   }
 }>()
 
-const fallback = '/default-store.png' // 👉 public 폴더에 기본 이미지 넣어도 좋아
+const fallback = '/default-store.png' 
 </script>
 
 <style scoped>

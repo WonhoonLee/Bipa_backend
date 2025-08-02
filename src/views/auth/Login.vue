@@ -13,12 +13,13 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 import { useUser } from '@/store/User'
 
 const router = useRouter()
 const { user, setNickname } = useUser()
 
-function startGame() {
+async function startGame() {
   window.Kakao.Auth.login({
     success: function (authObj: any) {
       console.log('✅ 로그인 성공', authObj)
@@ -26,14 +27,30 @@ function startGame() {
       // ✅ 카카오 API로 사용자 정보 요청
       window.Kakao.API.request({
         url: '/v2/user/me',
-        success: (res: any) => {
+        success: async (res: any) => {
           console.log('✅ 사용자 정보', res)
 
-          // ✅ 로그인 시 user store 갱신
+          // ✅ 1️⃣ Pinia Store에 저장
           user.id = res.id
-          setNickname(res.kakao_account.profile.nickname) // store + localStorage
+          setNickname(res.kakao_account.profile.nickname) // Store + localStorage 반영
 
-          router.push('/game') // ✅ 게임 화면으로 이동
+          // ✅ 2️⃣ 백엔드로 유저 정보 전달
+          try {
+            await axios.post('/user/first_login', {
+              id: res.id,
+              nickname: res.kakao_account.profile.nickname,
+              connected_at: res.connected_at
+            })
+            console.log('✅ 백엔드에 사용자 정보 전달 완료')
+          } catch (error) {
+            console.error('❌ first_login API 실패:', error)
+          }
+
+          // ✅ 3️⃣ 게임 화면으로 이동
+          router.push('/game')
+        },
+        fail: function (err: any) {
+          console.error('❌ 사용자 정보 요청 실패', err)
         }
       })
     },
@@ -63,7 +80,7 @@ function startGame() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 85% center; 
+  object-position: 85% center; /* 오른쪽 조금 더 보여주기 */
   z-index: -1;
 }
 

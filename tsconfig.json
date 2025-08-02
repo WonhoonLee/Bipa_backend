@@ -14,8 +14,9 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    "types": ["vite/client"],        // ✅ Vite 환경 변수 타입만 명확히 로드
+    "skipLibCheck": true             // ✅ node_modules 타입 검사 생략 → 속도 ↑
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.vue", "vite-env.d.ts"]
- 
 }
