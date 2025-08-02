@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import GameViewer from '@/components/common/GameViewer.vue'
-import UserDataPanel from '@/components/common/UserDataPanel.vue'
+import UserDataPanel from '@/components/game/UserDataPanel.vue'
 </script>
 
 <style scoped>

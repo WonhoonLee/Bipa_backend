@@ -12,7 +12,8 @@
     </div>
 
     <div class="tab-content">
-      <UserInfo v-if="activeTab === 0" />
+      <!-- ✅ Userinfo.vue 가져오기 -->
+      <Userinfo v-if="activeTab === 0" />
       <StoreSearch v-else-if="activeTab === 1" />
       <StoreCollection v-else-if="activeTab === 2" />
     </div>
