@@ -2,18 +2,20 @@
   <div class="user-stats">
     <h2>👤 사용자 정보</h2>
 
-    <p><strong>ID:</strong> {{ user.id }}</p>
+    <p><strong>ID:</strong> {{ user.id || '-' }}</p>
 
-    <!-- 닉네임 수정 블록 -->
+    <!-- 닉네임 수정 -->
     <div class="nickname-section">
       <strong>닉네임:</strong>
+
       <template v-if="isEditing">
         <input v-model="tempNickname" type="text" />
-        <button @click="saveNickname">✅</button>
-        <button @click="cancelEdit">❌</button>
+        <button :disabled="saving" @click="saveNickname">✅</button>
+        <button :disabled="saving" @click="cancelEdit">❌</button>
       </template>
+
       <template v-else>
-        <span>{{ user.nickname }}</span>
+        <span>{{ user.nickname || '(미설정)' }}</span>
         <button class="edit-btn" @click="editNickname">✏️</button>
       </template>
     </div>
@@ -21,24 +23,34 @@
     <p><strong>레벨:</strong> Lv.{{ user.level }}</p>
     <p><strong>배고픔:</strong> {{ user.hunger }} / 100</p>
 
-    <!-- 나중에 다시 연결 -->
-    <!-- <MiniGameStats :records="user.miniGames" /> -->
-
     <button class="logout-btn" @click="handleLogout">🚪 로그아웃</button>
+
+    <p v-if="msg" class="msg" :class="{ ok: msgType==='ok', err: msgType==='err' }">
+      {{ msg }}
+    </p>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
 import { useRouter } from 'vue-router'
 import { useUser } from '@/store/User'
+import api from '@/api/axios' // baseURL: http://localhost:8080
 
 const router = useRouter()
 const { user, setNickname, logout } = useUser()
 
 const isEditing = ref(false)
 const tempNickname = ref(user.nickname)
+const saving = ref(false)
+const msg = ref('')
+const msgType = ref<'ok' | 'err' | ''>('')
+
+function flash(message: string, type: 'ok' | 'err' = 'ok') {
+  msg.value = message
+  msgType.value = type
+  setTimeout(() => (msg.value = ''), 2000)
+}
 
 function editNickname() {
   tempNickname.value = user.nickname
@@ -46,22 +58,39 @@ function editNickname() {
 }
 
 async function saveNickname() {
-  if (!tempNickname.value.trim()) return
-  setNickname(tempNickname.value) // 로컬/스토어 즉시 반영
+  const name = (tempNickname.value || '').trim()
+  if (!name) return
 
+  if (!user.id) {
+    flash('로그인 정보가 없어요. 다시 로그인해주세요.', 'err')
+    return
+  }
+
+  saving.value = true
   try {
-    await axios.post('/user/first_login', {
-      user: {
+    // ✅ 백엔드 명세대로 전송 (루트 키: users)
+    const { data } = await api.post('/user/change_nickname', {
+      users: {
         id: user.id,
-        nickname: tempNickname.value,
-        connected_at: new Date().toISOString(),
+        nickname: name,
       },
     })
-    console.log('✅ 닉네임 변경 DB 반영 완료')
+    console.log('[change_nickname resp.status]',status)
+    console.log('[change_nickname resp.data]', JSON.stringify(data, null, 2))
+
+    if (data?.status === 'success') {
+      // 서버 성공 시에만 스토어에 반영
+      setNickname(name)
+      isEditing.value = false
+      flash('닉네임 변경 완료', 'ok')
+    } else {
+      flash('닉네임 변경 실패', 'err')
+    }
   } catch (err) {
-    console.error('❌ 닉네임 변경 API 실패', err)
+    console.error('닉네임 변경 API 실패', err)
+    flash('서버 오류로 닉네임 변경 실패', 'err')
   } finally {
-    isEditing.value = false
+    saving.value = false
   }
 }
 
@@ -84,18 +113,21 @@ function handleLogout() {
   border-radius: 8px;
   font-size: 16px;
 }
+
 .nickname-section {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 8px 0;
 }
+
 .nickname-section input {
   padding: 4px 6px;
   font-size: 14px;
   border-radius: 4px;
   border: 1px solid #ccc;
 }
+
 .edit-btn {
   padding: 4px 6px;
   background: #ddd;
@@ -104,6 +136,7 @@ function handleLogout() {
   cursor: pointer;
 }
 .edit-btn:hover { background: #bbb; }
+
 .logout-btn {
   margin-top: 20px;
   padding: 8px 12px;
@@ -116,4 +149,11 @@ function handleLogout() {
   width: 100%;
 }
 .logout-btn:hover { background: #e60000; }
+
+.msg {
+  margin-top: 10px;
+  font-size: 14px;
+}
+.msg.ok { color: #2f9e44; }
+.msg.err { color: #d6336c; }
 </style>

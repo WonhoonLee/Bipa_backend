@@ -1,0 +1,20 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: bipa-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "1234"
+      MYSQL_DATABASE: "bipa"
+    ports:
+      - "3307:3306"
+    command: [
+      "--character-set-server=utf8mb4",
+      "--collation-server=utf8mb4_unicode_ci"
+    ]
+    volumes:
+      - bipa_mysql:/var/lib/mysql
+      # (옵션) my.cnf를 붙여서 영구화
+      # - ./mysql/conf.d:/etc/mysql/conf.d
+volumes:
+  bipa_mysql:

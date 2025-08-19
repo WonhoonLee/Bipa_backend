@@ -1,77 +1,83 @@
 <template>
   <div class="login-page">
-    <!-- ✅ 전체 배경 이미지 -->
+    <!-- 전체 배경 이미지 -->
     <img class="background" src="@/assets/images/full_display.png" alt="배경 이미지" />
 
-    <!-- ✅ 이미지 로고 -->
+    <!-- 이미지 로고 -->
     <img class="logo" src="@/assets/images/로고.png" alt="게임 첫 화면" />
 
-    <!-- ✅ 시작 버튼 -->
+    <!-- 시작 버튼 -->
     <button class="start-btn" @click="startGame">게임 시작하기</button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import api from '@/api/axios'              // ✅ baseURL: http://localhost:8080
+import api from '@/api/axios'            // baseURL: http://localhost:8080
 import { useUser } from '@/store/User'
+
+declare global { interface Window { Kakao: any } }
 
 const router = useRouter()
 const { user, setNickname } = useUser()
 
 async function startGame() {
-  // 타입 경고 회피용(프로젝트에 shims-kakao.d.ts 있으면 생략 가능)
-  // @ts-ignore
   const Kakao = window.Kakao
-  if (!Kakao) {
-    console.error('Kakao SDK not loaded')
-    return
-  }
+  if (!Kakao) { console.error('Kakao SDK not loaded'); return }
 
-  Kakao.Auth.login({
-    success: () => {
-      Kakao.API.request({
-        url: '/v2/user/me',
-        success: async (res: any) => {
-          // ✅ 1) 카카오 사용자 정보 파싱
-          const kakaoId = res?.id
-          const nickname =
-            res?.kakao_account?.profile?.nickname ?? '게스트'
-          // 카카오 응답에 connected_at이 없을 수도 있으니 안전하게 보정
-          const connectedAt: string = res?.connected_at ?? new Date().toISOString()
-
-          // ✅ 2) Pinia Store 반영
-          user.id = kakaoId
-          setNickname(nickname)
-
-          // ✅ 3) 백엔드 first_login 호출 (명세에 맞춰 "user" 중첩)
-          try {
-            await api.post('/user/first_login', {
-              user: {
-                id: kakaoId,
-                nickname,
-                connected_at: connectedAt
-              }
-            })
-            console.log('✅ first_login 성공')
-          } catch (err) {
-            console.error('❌ first_login 실패', err)
-            // 실패하더라도 게임화면 진입은 가능하게 두고 싶다면 아래 라우팅 유지
-            // return으로 막고 싶으면 여기서 return
-          }
-
-          // ✅ 4) 게임 화면으로 이동
-          router.push('/game')
-        },
+  try {
+    // 1) 카카오 로그인 (PC 브라우저에서 톡앱 스킴 방지)
+    await new Promise<void>((resolve, reject) => {
+      Kakao.Auth.login({
+        scope: 'profile_nickname',
+        throughTalk: false, // ← intent: 스킴 방지
+        success: () => resolve(),
         fail: (err: any) => {
-          console.error('❌ 사용자 정보 요청 실패', err)
-        }
+          console.warn('[Kakao.Auth.login fail]', err)
+          Kakao.Auth.loginForm({
+            scope: 'profile_nickname',
+            success: () => resolve(),
+            fail: (e: any) => reject(e),
+          })
+        },
       })
-    },
-    fail: (err: any) => {
-      console.error('❌ 로그인 실패', err)
+    })
+
+    // 2) 사용자 정보 요청
+    const me = await Kakao.API.request({ url: '/v2/user/me' })
+    const kakaoId: number = me?.id
+    const kakaoNickname: string = me?.kakao_account?.profile?.nickname ?? '게스트'
+
+    // 닉변 유지: 저장된 닉넴이 있으면 그걸 우선 사용
+    const savedNickname = localStorage.getItem('nickname')
+    const nicknameToUse = savedNickname && savedNickname.trim().length
+      ? savedNickname.trim()
+      : kakaoNickname
+
+    // LocalDateTime 호환 ("YYYY-MM-DDTHH:mm:ss")
+    const connectedAt: string = (me?.connected_at ?? new Date().toISOString()).slice(0, 19)
+
+    // 3) 서버 first_login 호출 (루트 키: user)
+    const { status, data } = await api.post('/user/first_login', {
+      user: { id: kakaoId, nickname: nicknameToUse, connected_at: connectedAt },
+    })
+    console.log('[first_login status]', status)
+    console.log('[first_login data]', JSON.stringify(data, null, 2))
+
+    // 4) 스토어/로컬 반영
+    if (data?.status === 'success' && typeof data.id !== 'undefined') {
+      user.id = data.id
+    } else {
+      user.id = kakaoId // 서버가 id를 안주면 카카오 id로 폴백
     }
-  })
+    setNickname(nicknameToUse)
+    localStorage.setItem('nickname', nicknameToUse)
+
+    // 5) 게임 화면으로 이동
+    router.push('/game')
+  } catch (err) {
+    console.error('로그인/first_login 실패', err)
+  }
 }
 </script>
 
@@ -86,7 +92,7 @@ async function startGame() {
   overflow: hidden;
 }
 
-/* ✅ 배경 이미지 (오른쪽 대교 강조) */
+/* 배경 이미지 */
 .background {
   position: absolute;
   top: 0;
@@ -94,11 +100,11 @@ async function startGame() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: 85% center; /* 오른쪽을 더 보여줌 */
+  object-position: 85% center; /* 오른쪽 강조 */
   z-index: -1;
 }
 
-/* ✅ 로고 */
+/* 로고 */
 .logo {
   width: 400px;
   margin-bottom: 40px;
@@ -107,7 +113,7 @@ async function startGame() {
   filter: drop-shadow(0 0 12px rgba(0,0,0,0.5));
 }
 
-/* ✅ 시작 버튼 */
+/* 시작 버튼 */
 .start-btn {
   background-color: #FEE500;
   border: none;
