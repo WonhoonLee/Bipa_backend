@@ -79,12 +79,12 @@ async function saveNickname() {
     console.log('[change_nickname resp.data]', JSON.stringify(data, null, 2))
 
     if (data?.status === 'success') {
-      // 서버 성공 시에만 스토어에 반영
-      setNickname(name)
-      isEditing.value = false
-      flash('닉네임 변경 완료', 'ok')
+    setNickname(name)
+    localStorage.setItem('nickname', name)   // ✅ 로컬 저장
+    isEditing.value = false
+    flash('닉네임 변경 완료', 'ok')
     } else {
-      flash('닉네임 변경 실패', 'err')
+    flash('닉네임 변경 실패', 'err')
     }
   } catch (err) {
     console.error('닉네임 변경 API 실패', err)

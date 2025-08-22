@@ -16,10 +16,6 @@ defineProps<{
 </script>
 
 <style scoped>
-.mini-game-stats {
-  margin-top: 1rem;
-}
-ul {
-  padding-left: 1rem;
-}
+.mini-game-stats { margin-top: 1rem; background:#fff; border:1px solid #eee; border-radius:6px; padding:.75rem; }
+ul { padding-left: 1rem; margin: .25rem 0 0; }
 </style>
