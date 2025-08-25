@@ -1,6 +1,6 @@
 <template>
   <div class="game-viewer">
-    <h2>🕹 게임 화면 (GameViewer)</h2>
+    <h2>🕹 게임 화면 </h2>
 
     <div class="mock-frame">게임 콘텐츠 영역입니다</div>
 
