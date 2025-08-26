@@ -117,5 +117,5 @@ const activeTab = ref(0)
 }
 
 /* minimized 클래스는 유지(부모 제어용), 내부 UI는 v-show로 숨김 */
-.panel-root.minimized { /* 추가 동작 필요시 여기에 작성 */ }
+/* .panel-root.minimized { 추가 동작 필요시 여기에 작성 }  */
 </style>

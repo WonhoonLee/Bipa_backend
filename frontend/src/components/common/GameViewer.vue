@@ -1,9 +1,20 @@
+<!-- src/components/common/GameViewer.vue -->
 <template>
   <div class="game-viewer">
-    <h2>🕹 게임 화면 </h2>
+    <h2>🕹 게임 화면</h2>
 
-    <div class="mock-frame">게임 콘텐츠 영역입니다</div>
+    <!-- Unity WebGL -->
+    <div class="frame-wrap">
+      <iframe
+        class="unity-frame"
+        :src="unitySrc"
+        title="BipaGame"
+        allow="autoplay; fullscreen; clipboard-read; clipboard-write"
+        scrolling="no"
+      ></iframe>
+    </div>
 
+    <!-- 상태 패널 -->
     <div class="panel">
       <div class="row">
         <strong>characterId:</strong>
@@ -32,9 +43,12 @@ import { fetchCharacters, postPlayGame } from '@/api/bipa'
 
 const { user } = useUser()
 
+// public/unity/BipaGame/index.html
+const unitySrc = '/unity/BipaGame/index.html'
+
 const characterId = ref<number | null>(null)
 const loading = ref(false)
-const errorMsg = ref('')          // ← ✅ 없어서 에러났던 부분
+const errorMsg = ref('')
 const sending = ref(false)
 const msg = ref('')
 const msgType = ref<'ok' | 'err' | ''>('')
@@ -51,20 +65,15 @@ function flash(text: string, type: 'ok' | 'err' = 'ok') {
   setTimeout(() => (msg.value = ''), 2000)
 }
 
-// 캐릭터 id 가져오기
 async function loadCharacter() {
   if (!user.id) return
-  const uid = Number(user.id)               // ← ✅ number로 고정
-  if (!Number.isFinite(uid)) {
-    errorMsg.value = '유효하지 않은 사용자 ID'
-    return
-  }
+  const uid = Number(user.id)
+  if (!Number.isFinite(uid)) { errorMsg.value = '유효하지 않은 사용자 ID'; return }
 
   loading.value = true
   errorMsg.value = ''
   try {
-    const data = await fetchCharacters(uid) // ← ✅ number만 전달
-    console.log('[characters]', JSON.stringify(data, null, 2))
+    const data = await fetchCharacters(uid)
     const ch = data?.characters
     if (ch?.id) characterId.value = ch.id
   } catch (e: any) {
@@ -75,7 +84,6 @@ async function loadCharacter() {
   }
 }
 
-// 미니게임 종료 전송
 async function onMiniGameEnd(result: {
   level: number; exp: number; money: number; hungry_gauge: number;
   max_actopus: number; max_fig: number; max_yudal: number; max_fish: number;
@@ -84,8 +92,7 @@ async function onMiniGameEnd(result: {
   sending.value = true
   try {
     const payload = { id: characterId.value, ...result }
-    const data = await postPlayGame(payload)
-    console.log('[play_game]', JSON.stringify(data, null, 2))
+    await postPlayGame(payload)
     flash('미니게임 결과 저장 완료', 'ok')
   } catch (e: any) {
     console.error('[play_game error]', e?.response?.data ?? e)
@@ -95,13 +102,9 @@ async function onMiniGameEnd(result: {
   }
 }
 
-// 테스트용 샘플
 function finishGame(kind: '낚시' | '문어잡기' | '유달산') {
   const sample = {
-    level: 2,
-    exp: 50,
-    money: 200,
-    hungry_gauge: 95,
+    level: 2, exp: 50, money: 200, hungry_gauge: 95,
     max_actopus: kind === '문어잡기' ? 1 : 0,
     max_fig: 0,
     max_yudal: kind === '유달산' ? 1 : 0,
@@ -115,15 +118,63 @@ onMounted(loadCharacter)
 </script>
 
 <style scoped>
-.game-viewer { padding: 1rem; background-color: #f0f0f0; height: 100%; }
-.mock-frame { height: 300px; border: 2px dashed #ccc; display: flex; align-items: center; justify-content: center; color: #888; background: #fff; margin-bottom: 12px; }
-.panel { background: #fff; border: 1px solid #e5e5e5; border-radius: 6px; padding: 8px; margin-bottom: 8px; font-size: 14px; }
-.panel .row { display: flex; gap: 6px; align-items: center; }
-.info { color: #555; }
-.ok { color: #2f9e44; }
-.err { color: #d6336c; }
-.actions { display: flex; gap: 8px; margin-bottom: 10px; }
-.actions button { padding: 8px 10px; border: 1px solid #ccc; background: #fff; cursor: pointer; border-radius: 6px; }
-.actions button:disabled { opacity: .6; cursor: not-allowed; }
-.actions button:hover:not(:disabled) { background: #f4f4f4; }
+.game-viewer {
+  padding: 1rem;
+  background: #f0f0f0;
+  height: 100%;
+}
+
+/* ===============================
+   16:9 비율 유지 + 레터박스 표시
+   =============================== */
+.frame-wrap{
+  position: relative;
+  width: 100%;
+  /* 16:9 비율을 브라우저가 지원하면 이 한 줄로 끝 */
+  aspect-ratio: 16 / 9;
+
+  /* 구형 브라우저 fallback (aspect-ratio 미지원 대비) */
+  /* padding-top: 56.25%;  height: 0; */
+
+  /* 세로가 너무 커지지 않게 한도 */
+  max-height: 80vh;
+
+  /* aspect-ratio가 적용돼 height:auto가 되므로,
+     최대 높이를 넘을 땐 letter-box(상하 여백) 생김 */
+  background: #000;
+  border-radius: 10px;
+  overflow: hidden;            /* 프레임 바깥 스크롤 차단 */
+  border: 1px dashed #c7c7c7;
+}
+
+/* 구형 브라우저 fallback용(위 padding-top 사용시만)
+.frame-wrap > .unity-frame {
+  position: absolute;
+  inset: 0;
+}
+*/
+
+.unity-frame{
+  width: 100%;
+  height: 100%;
+  border: 0;
+  overflow: hidden;            /* 일부 브라우저 내부 스크롤 숨김 */
+}
+
+/* 이하 동일 */
+.panel{
+  background:#fff; border:1px solid #e5e5e5; border-radius:6px;
+  padding:8px; margin-top:12px; margin-bottom:8px; font-size:14px;
+}
+.panel .row{ display:flex; gap:6px; align-items:center; }
+.info{ color:#555; }
+.ok{ color:#2f9e44; }
+.err{ color:#d6336c; }
+.actions{ display:flex; gap:8px; margin-bottom:10px; }
+.actions button{
+  padding:8px 10px; border:1px solid #ccc; background:#fff;
+  cursor:pointer; border-radius:6px;
+}
+.actions button:disabled{ opacity:.6; cursor:not-allowed; }
+.actions button:hover:not(:disabled){ background:#f4f4f4; }
 </style>
